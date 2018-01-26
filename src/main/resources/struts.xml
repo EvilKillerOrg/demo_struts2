@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE struts PUBLIC 
+	"-//Apache Software Foundation//DTD Struts Configuration 2.3//EN" 
+	"http://struts.apache.org/dtds/struts-2.3.dtd" >
+<struts>
+	<!-- struts2.3.16.3 后要在这配置显式的 value=true (之前的版本默认是true现在是false) 之后才能用action!method -->
+	<constant name="struts.enable.DynamicMethodInvocation" value="true"></constant>
+	<!--  
+	<constant name="struts.ui.theme" value="simple" />
+    <constant name="struts.i18n.encoding" value="UTF-8" />
+	-->
+	
+	<!-- package name 的作用是用来实现继承的 
+		 namespace 是用来实现action重名的 /是默认名称空间 自定义名称空间访问action时路径也要加上名称空间
+		 extends 是指继承了哪个 struts-default是默认的-->
+	<package name="example1" namespace="/ch1" extends="struts-default">
+		<action name="loginAction" class="com.ek.struts2.ch1.action.LoginAction">
+			<!-- result的跳转默认的是 forward , redirect 重定向到页面 -->
+			<result name="success" type="redirect">/ch1/success.jsp</result>
+			<result name="input">/ch1/login.jsp</result>
+		</action>
+	</package>
+
+
+	<package name="example2" namespace="/ch2" extends="struts-default">
+		<!-- 自定义 result-type 用于文件下载 在下面userInfo1Action中使用-->
+		<result-types>
+			<result-type name="myStream" class="com.ek.struts2.ch2.model.result.MyStreamResult"></result-type>
+		</result-types>
+
+		
+		<!-- 拦截器栈就是一系列拦截器的组合 struts2 中 提供了很多种 拦截器栈 其中 defaultStack 是默认 拦截器栈 -->
+		<interceptors>
+			<!-- 自定义的拦截器 -->
+			<interceptor name="hibernateInterceptor" class="com.ek.struts2.ch2.model.interceptor.HibernateInterceptor" />
+			<interceptor name="authorityInterceptor" class="com.ek.struts2.ch2.model.interceptor.AuthorityInterceptor"></interceptor>
+			<interceptor name="encodeInterceptor" class="com.ek.struts2.ch2.model.interceptor.EncodeInterceptor"></interceptor>
+
+			<!-- 自定义拦截器栈(组合) ; 这里实现了把自定义拦截器和defaultStack 组合为在一个叫做myInterceptor的自定义拦截器栈 -->
+			<interceptor-stack name="myInterceptor">
+				<interceptor-ref name="hibernateInterceptor" /> <!-- 给自定义栈中关联自定义拦截器 -->
+				<interceptor-ref name="authorityInterceptor" /> 
+				<interceptor-ref name="encodeInterceptor" /> 
+				<interceptor-ref name="defaultStack" /> <!-- 给自定义栈中关联一个struts默认拦截器栈 写最后 -->
+			</interceptor-stack>
+		</interceptors>
+		
+		
+		<!-- 下面是struts默认的拦截器栈 
+		<default-interceptor-ref name="defaultStack"/>
+		-->
+		<!-- 下面覆盖了strut2默认拦截器栈为自定义拦截器栈 设置了下面的,就不用在这个包里的每个action去关联拦截器栈了
+		<default-interceptor-ref name="myInterceptor"/>
+		-->
+
+
+		<action name="userInfo0Action" class="com.ek.struts2.ch2.action.UserInfo0Action">
+			<!--redirectAction 重定向到action -->
+			<result name="success" type="redirectAction">userInfo0Action!list</result>
+			<result name="listpage">/ch2/userinfo0List.jsp</result>
+		</action>
+
+		<action name="userInfo1Action" class="com.ek.struts2.ch2.action.UserInfo1Action">
+			<!-- action 关联 拦截器 -->
+			<interceptor-ref name="myInterceptor" />
+			<result name="success" type="redirectAction">userInfo1Action!list</result>
+			<result name="listpage">/ch2/userinfo1List.jsp</result>
+
+			<!-- 取代response返回stream ( 头文件中有没有这个参数attachment; 觉得是下载还是在页面解析 ) -->
+			<result name="download" type="stream">
+				<param name="contentType">image/jpeg</param>
+				<param name="inputName">inputStream</param>
+				<param name="contentDisposition">attachment; filename="document.jpg"</param>
+				<param name="bufferSize">1024</param>
+			</result>
+
+			<!-- 使用自定义result-type 地址 -->
+			<result name="mydownload" type="myStream">
+				<param name="contentType">image/jpeg</param>
+				<param name="inputName">inputStream</param>
+				<param name="bufferSize">1024</param>
+			</result>
+		</action>
+
+		<action name="ognlAction" class="com.ek.struts2.ch2.action.OgnlAction">
+			<result name="input">/ch2/ognl_guide1.jsp</result>
+		</action>
+	</package>
+
+</struts>
+ 

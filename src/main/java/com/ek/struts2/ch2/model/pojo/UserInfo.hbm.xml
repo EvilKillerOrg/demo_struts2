@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated 2017-7-4 16:56:54 by Hibernate Tools 3.5.0.Final -->
+<hibernate-mapping>
+    <class name="com.ek.struts2.ch2.model.pojo.UserInfo" table="user_info" catalog="struts2demo">
+        <id name="uuid" type="java.lang.Integer">
+            <column name="uuid" />
+            <generator class="identity" />
+        </id>
+        <property name="username" type="java.lang.String">
+            <column name="username" length="20" />
+        </property>
+        <property name="sex" type="java.lang.String">
+            <column name="sex" length="1" />
+        </property>
+        <property name="birthday" type="java.util.Date">
+            <column name="birthday" length="19" />
+        </property>
+        <property name="photo1" type="binary">
+            <column name="photo1" />
+        </property>
+        <property name="photo2" type="binary">
+            <column name="photo2" />
+        </property>
+        <property name="photo3" type="binary">
+            <column name="photo3" />
+        </property>
+    </class>
+</hibernate-mapping>
